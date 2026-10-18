@@ -189,7 +189,14 @@
       padding: 12px;
       border-radius: 12px;
       text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .time-box:active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: rgba(59, 130, 246, 0.4);
     }
 
     .time-box .label {
@@ -198,24 +205,22 @@
       margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .time-box .label::after {
+      content: "✏️";
+      font-size: 0.65rem;
+      opacity: 0.6;
     }
 
     .time-box .value {
       font-size: 1.3rem;
       font-weight: 800;
       color: var(--text);
-    }
-
-    .btn-add-mila {
-      margin-top: 12px;
-      width: 100%;
-      padding: 12px;
-      font-size: 0.9rem;
-      background: rgba(59, 130, 246, 0.15);
-      color: #60a5fa;
-      border: 1px dashed rgba(59, 130, 246, 0.4);
-      border-radius: 10px;
-      font-weight: 600;
     }
 
     .delete-btn {
@@ -242,7 +247,7 @@
       font-size: 0.95rem;
     }
 
-    /* Modal dialog s číselnou klávesnicí */
+    /* Modal dialog */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -339,14 +344,14 @@
     <div class="modal-card">
       <div class="modal-title" id="modalTitle">Zadat čas</div>
       
-      <div class="modal-input-group" id="honzaGroup" style="display: none;">
+      <div class="modal-input-group" id="honzaGroup">
         <label>Čas Honza (MM:SS)</label>
-        <input type="text" id="honzaInput" class="modal-input" inputmode="numeric" pattern="[0-9:]*" placeholder="42:15">
+        <input type="text" id="honzaInput" class="modal-input" inputmode="numeric" placeholder="42:15" oninput="autoFormatTime(this)">
       </div>
 
       <div class="modal-input-group" id="milaGroup">
         <label>Čas Míla (MM:SS)</label>
-        <input type="text" id="milaInput" class="modal-input" inputmode="numeric" pattern="[0-9:]*" placeholder="45:30">
+        <input type="text" id="milaInput" class="modal-input" inputmode="numeric" placeholder="45:30" oninput="autoFormatTime(this)">
       </div>
 
       <div class="modal-buttons">
@@ -362,7 +367,7 @@
     let elapsedTime = 0;
     let isRunning = false;
     let activeTripId = null;
-    let modalMode = 'milaOnly';
+    let modalMode = 'editTrip';
 
     document.addEventListener('DOMContentLoaded', loadHistory);
 
@@ -407,6 +412,18 @@
       return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 
+    /* Automatické doplňování dvojtečky při psaní čísel */
+    function autoFormatTime(input) {
+      let val = input.value.replace(/\D/g, ''); // Ponechá jen čísla
+      if (val.length > 4) val = val.substring(0, 4); // Max 4 číslice
+      
+      if (val.length > 2) {
+        input.value = val.substring(0, 2) + ':' + val.substring(2);
+      } else {
+        input.value = val;
+      }
+    }
+
     function saveTrip(honzaTime) {
       const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
       const newTrip = {
@@ -421,20 +438,33 @@
       loadHistory();
     }
 
-    /* Modal s Číselnou Klávesnicí */
-    function openMilaModal(id) {
+    /* Úprava konkrétního výstupu po kliknutí na čas */
+    function editTripTime(id, focusPerson = 'honza') {
       activeTripId = id;
-      modalMode = 'milaOnly';
-      document.getElementById('modalTitle').textContent = 'Přidat čas pro Mílu';
-      document.getElementById('honzaGroup').style.display = 'none';
-      document.getElementById('milaGroup').style.display = 'block';
-      document.getElementById('milaInput').value = '';
+      modalMode = 'editTrip';
       
+      const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
+      const trip = history.find(item => item.id === id);
+
+      if (!trip) return;
+
+      document.getElementById('modalTitle').textContent = `Upravit čas (${trip.date})`;
+      document.getElementById('honzaGroup').style.display = 'block';
+      document.getElementById('milaGroup').style.display = 'block';
+
+      document.getElementById('honzaInput').value = (trip.honzaTime && trip.honzaTime !== '--:--') ? trip.honzaTime : '';
+      document.getElementById('milaInput').value = (trip.milaTime && trip.milaTime !== '--:--') ? trip.milaTime : '';
+
       const modal = document.getElementById('timeModal');
       modal.classList.add('active');
-      
-      // Automatické zaostření vyvolá číselnou klávesnici
-      setTimeout(() => document.getElementById('milaInput').focus(), 100);
+
+      setTimeout(() => {
+        if (focusPerson === 'mila') {
+          document.getElementById('milaInput').focus();
+        } else {
+          document.getElementById('honzaInput').focus();
+        }
+      }, 100);
     }
 
     function openManualAddModal() {
@@ -458,25 +488,23 @@
     function saveModalData() {
       const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
 
-      if (modalMode === 'milaOnly') {
-        const milaTime = document.getElementById('milaInput').value.trim();
-        if (milaTime) {
-          const trip = history.find(item => item.id === activeTripId);
-          if (trip) {
-            trip.milaTime = milaTime;
-            localStorage.setItem('milesovka_history', JSON.stringify(history));
-          }
+      let honzaVal = document.getElementById('honzaInput').value.trim();
+      let milaVal = document.getElementById('milaInput').value.trim();
+
+      if (modalMode === 'editTrip') {
+        const trip = history.find(item => item.id === activeTripId);
+        if (trip) {
+          trip.honzaTime = honzaVal || '--:--';
+          trip.milaTime = milaVal || null;
+          localStorage.setItem('milesovka_history', JSON.stringify(history));
         }
       } else if (modalMode === 'manualAdd') {
-        const honzaTime = document.getElementById('honzaInput').value.trim();
-        const milaTime = document.getElementById('milaInput').value.trim();
-
-        if (honzaTime || milaTime) {
+        if (honzaVal || milaVal) {
           const newTrip = {
             id: Date.now(),
             date: new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' }),
-            honzaTime: honzaTime || '--:--',
-            milaTime: milaTime || null
+            honzaTime: honzaVal || '--:--',
+            milaTime: milaVal || null
           };
           history.unshift(newTrip);
           localStorage.setItem('milesovka_history', JSON.stringify(history));
@@ -533,18 +561,17 @@
               <button class="delete-btn" onclick="deleteTrip(${item.id})">Smazat</button>
             </div>
             <div class="times-grid">
-              <div class="time-box">
+              <div class="time-box" onclick="editTripTime(${item.id}, 'honza')">
                 <div class="label">Honza</div>
                 <div class="value">${item.honzaTime}</div>
                 ${honzaWinner ? '<div class="winner-badge">🏆 Rychlejší</div>' : ''}
               </div>
-              <div class="time-box">
+              <div class="time-box" onclick="editTripTime(${item.id}, 'mila')">
                 <div class="label">Míla</div>
                 <div class="value">${item.milaTime || '--:--'}</div>
                 ${milaWinner ? '<div class="winner-badge">🏆 Rychlejší</div>' : ''}
               </div>
             </div>
-            ${!item.milaTime ? `<button class="btn-add-mila" onclick="openMilaModal(${item.id})">+ Přidat čas pro Mílu</button>` : ''}
           </div>
         `;
       }).join('');
