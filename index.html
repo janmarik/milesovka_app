@@ -11,17 +11,18 @@
   <meta name="apple-mobile-web-app-title" content="Milešovka">
   <link rel="apple-touch-icon" href="icon.svg">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
-  
+
   <style>
     :root {
-      --bg-color: #f4f6f8;
-      --card-bg: #ffffff;
-      --primary: #2e7d32;
-      --primary-hover: #1b5e20;
-      --danger: #d32f2f;
-      --text: #333333;
-      --text-muted: #666666;
-      --border: #e0e0e0;
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --danger: #ef4444;
+      --accent: #3b82f6;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
     }
 
     * {
@@ -36,81 +37,110 @@
       background-color: var(--bg-color);
       color: var(--text);
       padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
-      max-width: 500px;
+      max-width: 480px;
       margin: 0 auto;
     }
 
     header {
       text-align: center;
-      padding: 24px 0 16px 0;
+      padding: 24px 0 20px 0;
     }
 
     header h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #34d399, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .card {
       background: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 24px;
       margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
     }
 
     /* Stopky */
-    .timer-display {
-      font-size: 3.5rem;
-      font-weight: 800;
+    .timer-label {
       text-align: center;
-      font-mono: monospace;
-      margin: 10px 0 20px 0;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .timer-display {
+      font-size: 4rem;
+      font-weight: 900;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      margin: 0 0 24px 0;
       letter-spacing: 2px;
+      color: var(--text);
     }
 
     .btn-group {
       display: flex;
-      gap: 10px;
+      gap: 12px;
     }
 
     button {
       flex: 1;
       padding: 16px;
       border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 600;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: background-color 0.2s, transform 0.1s;
+      transition: all 0.2s ease;
     }
 
     button:active {
-      transform: scale(0.98);
+      transform: scale(0.97);
     }
 
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-secondary { background: #e0e0e0; color: var(--text); }
+    .btn-primary { 
+      background: var(--primary); 
+      color: #064e3b; 
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    }
+    
+    .btn-danger { 
+      background: var(--danger); 
+      color: white; 
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+    }
+    
+    .btn-secondary { 
+      background: #334155; 
+      color: var(--text); 
+    }
 
     /* Historie */
     .history-title {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      padding-left: 4px;
+      color: var(--text);
     }
 
     .history-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .history-item {
       background: var(--card-bg);
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       border: 1px solid var(--border);
     }
 
@@ -118,45 +148,52 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
       font-weight: 600;
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
     }
 
     .times-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
     }
 
     .time-box {
-      background: #f9f9f9;
-      padding: 10px;
-      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 12px;
+      border-radius: 12px;
       text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.03);
     }
 
     .time-box .label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .time-box .value {
-      font-size: 1.2rem;
-      font-weight: 700;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
     }
 
-    .btn-add-wife {
-      margin-top: 10px;
+    .btn-add-mila {
+      margin-top: 12px;
       width: 100%;
-      padding: 8px;
+      padding: 12px;
       font-size: 0.9rem;
-      background: #e8f5e9;
-      color: var(--primary);
-      border: 1px dashed var(--primary);
-      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px dashed rgba(59, 130, 246, 0.4);
+      border-radius: 10px;
+      font-weight: 600;
     }
 
     .delete-btn {
@@ -165,12 +202,15 @@
       font-size: 0.8rem;
       padding: 4px 8px;
       border: none;
+      cursor: pointer;
+      font-weight: 600;
     }
 
     .empty-state {
       text-align: center;
       color: var(--text-muted);
-      padding: 20px 0;
+      padding: 30px 0;
+      font-size: 0.95rem;
     }
   </style>
 </head>
@@ -182,6 +222,7 @@
 
   <!-- Sekce pro stopky -->
   <div class="card">
+    <div class="timer-label">Měření výstupu (Honza)</div>
     <div class="timer-display" id="display">00:00</div>
     <div class="btn-group">
       <button id="startStopBtn" class="btn-primary" onclick="toggleTimer()">Start</button>
@@ -201,19 +242,16 @@
     let elapsedTime = 0;
     let isRunning = false;
 
-    // Načtení dat při spustění
     document.addEventListener('DOMContentLoaded', loadHistory);
 
     function toggleTimer() {
       if (!isRunning) {
-        // Start
         startTime = Date.now() - elapsedTime;
         timerInterval = setInterval(updateDisplay, 1000);
-        document.getElementById('startStopBtn').textContent = 'Stop (Cíl)';
+        document.getElementById('startStopBtn').textContent = 'Stop (Vrchol)';
         document.getElementById('startStopBtn').className = 'btn-danger';
         isRunning = true;
       } else {
-        // Stop & Uložit
         clearInterval(timerInterval);
         document.getElementById('startStopBtn').textContent = 'Start';
         document.getElementById('startStopBtn').className = 'btn-primary';
@@ -247,27 +285,27 @@
       return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 
-    function saveTrip(myTime) {
+    function saveTrip(honzaTime) {
       const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
       const newTrip = {
         id: Date.now(),
         date: new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' }),
-        myTime: myTime,
-        wifeTime: null
+        honzaTime: honzaTime,
+        milaTime: null
       };
       
-      history.unshift(newTrip); // Přidá na začátek
+      history.unshift(newTrip);
       localStorage.setItem('milesovka_history', JSON.stringify(history));
       loadHistory();
     }
 
-    function addWifeTime(id) {
-      const wifeTime = prompt('Zadejte čas manželky (např. 45:30):');
-      if (wifeTime) {
+    function addMilaTime(id) {
+      const milaTime = prompt('Zadejte čas Míly (např. 45:30):');
+      if (milaTime) {
         const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
         const trip = history.find(item => item.id === id);
         if (trip) {
-          trip.wifeTime = wifeTime;
+          trip.milaTime = milaTime;
           localStorage.setItem('milesovka_history', JSON.stringify(history));
           loadHistory();
         }
@@ -300,15 +338,15 @@
           </div>
           <div class="times-grid">
             <div class="time-box">
-              <div class="label">Můj čas</div>
-              <div class="value">${item.myTime}</div>
+              <div class="label">Honza</div>
+              <div class="value">${item.honzaTime}</div>
             </div>
             <div class="time-box">
-              <div class="label">Manželka</div>
-              <div class="value">${item.wifeTime || '--:--'}</div>
+              <div class="label">Míla</div>
+              <div class="value">${item.milaTime || '--:--'}</div>
             </div>
           </div>
-          ${!item.wifeTime ? `<button class="btn-add-wife" onclick="addWifeTime(${item.id})">+ Přidat čas manželky</button>` : ''}
+          ${!item.milaTime ? `<button class="btn-add-mila" onclick="addMilaTime(${item.id})">+ Přidat čas pro Mílu</button>` : ''}
         </div>
       `).join('');
     }
