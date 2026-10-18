@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Výstupy na Milešovku</title>
+  
+  <!-- Nastavení pro iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Milešovka">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/mountain-emoji.png">
+
+  <style>
+    :root {
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --primary: #2e7d32;
+      --primary-hover: #1b5e20;
+      --danger: #d32f2f;
+      --text: #333333;
+      --text-muted: #666666;
+      --border: #e0e0e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 24px 0 16px 0;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    /* Stopky */
+    .timer-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      text-align: center;
+      font-mono: monospace;
+      margin: 10px 0 20px 0;
+      letter-spacing: 2px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-secondary { background: #e0e0e0; color: var(--text); }
+
+    /* Historie */
+    .history-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .history-item {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .times-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .time-box {
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .time-box .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .time-box .value {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .btn-add-wife {
+      margin-top: 10px;
+      width: 100%;
+      padding: 8px;
+      font-size: 0.9rem;
+      background: #e8f5e9;
+      color: var(--primary);
+      border: 1px dashed var(--primary);
+      border-radius: 8px;
+    }
+
+    .delete-btn {
+      background: transparent;
+      color: var(--danger);
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>⛰️ Výstupy na Milešovku</h1>
+  </header>
+
+  <!-- Sekce pro stopky -->
+  <div class="card">
+    <div class="timer-display" id="display">00:00</div>
+    <div class="btn-group">
+      <button id="startStopBtn" class="btn-primary" onclick="toggleTimer()">Start</button>
+      <button class="btn-secondary" onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+
+  <!-- Sekce pro historii -->
+  <div class="history-title">Historie výstupů</div>
+  <div class="history-list" id="historyList">
+    <!-- Položky historie se načtou dynamicky -->
+  </div>
+
+  <script>
+    let timerInterval = null;
+    let startTime = 0;
+    let elapsedTime = 0;
+    let isRunning = false;
+
+    // Načtení dat při spustění
+    document.addEventListener('DOMContentLoaded', loadHistory);
+
+    function toggleTimer() {
+      if (!isRunning) {
+        // Start
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(updateDisplay, 1000);
+        document.getElementById('startStopBtn').textContent = 'Stop (Cíl)';
+        document.getElementById('startStopBtn').className = 'btn-danger';
+        isRunning = true;
+      } else {
+        // Stop & Uložit
+        clearInterval(timerInterval);
+        document.getElementById('startStopBtn').textContent = 'Start';
+        document.getElementById('startStopBtn').className = 'btn-primary';
+        isRunning = false;
+
+        if (elapsedTime > 0) {
+          saveTrip(formatTime(elapsedTime));
+          resetTimer();
+        }
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isRunning = false;
+      elapsedTime = 0;
+      document.getElementById('display').textContent = '00:00';
+      document.getElementById('startStopBtn').textContent = 'Start';
+      document.getElementById('startStopBtn').className = 'btn-primary';
+    }
+
+    function updateDisplay() {
+      elapsedTime = Date.now() - startTime;
+      document.getElementById('display').textContent = formatTime(elapsedTime);
+    }
+
+    function formatTime(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function saveTrip(myTime) {
+      const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
+      const newTrip = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' }),
+        myTime: myTime,
+        wifeTime: null
+      };
+      
+      history.unshift(newTrip); // Přidá na začátek
+      localStorage.setItem('milesovka_history', JSON.stringify(history));
+      loadHistory();
+    }
+
+    function addWifeTime(id) {
+      const wifeTime = prompt('Zadejte čas manželky (např. 45:30):');
+      if (wifeTime) {
+        const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
+        const trip = history.find(item => item.id === id);
+        if (trip) {
+          trip.wifeTime = wifeTime;
+          localStorage.setItem('milesovka_history', JSON.stringify(history));
+          loadHistory();
+        }
+      }
+    }
+
+    function deleteTrip(id) {
+      if (confirm('Opravdu chcete tento záznam smazat?')) {
+        let history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
+        history = history.filter(item => item.id !== id);
+        localStorage.setItem('milesovka_history', JSON.stringify(history));
+        loadHistory();
+      }
+    }
+
+    function loadHistory() {
+      const historyList = document.getElementById('historyList');
+      const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
+
+      if (history.length === 0) {
+        historyList.innerHTML = '<div class="empty-state">Zatím žádné zaznamenané výstupy.</div>';
+        return;
+      }
+
+      historyList.innerHTML = history.map(item => `
+        <div class="history-item">
+          <div class="history-header">
+            <span>📅 ${item.date}</span>
+            <button class="delete-btn" onclick="deleteTrip(${item.id})">Smazat</button>
+          </div>
+          <div class="times-grid">
+            <div class="time-box">
+              <div class="label">Můj čas</div>
+              <div class="value">${item.myTime}</div>
+            </div>
+            <div class="time-box">
+              <div class="label">Manželka</div>
+              <div class="value">${item.wifeTime || '--:--'}</div>
+            </div>
+          </div>
+          ${!item.wifeTime ? `<button class="btn-add-wife" onclick="addWifeTime(${item.id})">+ Přidat čas manželky</button>` : ''}
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
