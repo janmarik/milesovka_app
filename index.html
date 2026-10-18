@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Milešovka">
-  <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" href="icon.png">
 
   <style>
     :root {
@@ -60,7 +60,7 @@
       border-radius: 20px;
       padding: 24px;
       margin-bottom: 20px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
       border: 1px solid var(--border);
     }
 
@@ -121,12 +121,30 @@
       color: var(--text); 
     }
 
+    .btn-manual-add {
+      margin-top: 14px;
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
     /* Historie */
+    .history-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 0 4px;
+    }
+
     .history-title {
       font-size: 1.1rem;
       font-weight: 700;
-      margin-bottom: 14px;
-      padding-left: 4px;
       color: var(--text);
     }
 
@@ -142,18 +160,22 @@
       padding: 18px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       border: 1px solid var(--border);
+      position: relative;
     }
 
-    .history-header {
+    .item-top-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .item-date {
       font-weight: 600;
       color: var(--text-muted);
       font-size: 0.85rem;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 8px;
     }
 
     .times-grid {
@@ -206,11 +228,86 @@
       font-weight: 600;
     }
 
+    .winner-badge {
+      font-size: 0.7rem;
+      color: #f59e0b;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
     .empty-state {
       text-align: center;
       color: var(--text-muted);
       padding: 30px 0;
       font-size: 0.95rem;
+    }
+
+    /* Modal dialog s číselnou klávesnicí */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 360px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .modal-input-group {
+      margin-bottom: 16px;
+    }
+
+    .modal-input-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 14px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: white;
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+    }
+
+    .modal-input:focus {
+      border-color: var(--accent);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
     }
   </style>
 </head>
@@ -220,7 +317,7 @@
     <h1>⛰️ Výstupy na Milešovku</h1>
   </header>
 
-  <!-- Sekce pro stopky -->
+  <!-- Stopky -->
   <div class="card">
     <div class="timer-label">Měření výstupu (Honza)</div>
     <div class="timer-display" id="display">00:00</div>
@@ -228,12 +325,35 @@
       <button id="startStopBtn" class="btn-primary" onclick="toggleTimer()">Start</button>
       <button class="btn-secondary" onclick="resetTimer()">Reset</button>
     </div>
+    <button class="btn-manual-add" onclick="openManualAddModal()">+ Ručně vložit výstup</button>
   </div>
 
-  <!-- Sekce pro historii -->
-  <div class="history-title">Historie výstupů</div>
-  <div class="history-list" id="historyList">
-    <!-- Položky historie se načtou dynamicky -->
+  <!-- Historie -->
+  <div class="history-header-bar">
+    <div class="history-title">Historie výstupů</div>
+  </div>
+  <div class="history-list" id="historyList"></div>
+
+  <!-- Modal okno pro zadání/úpravu časů -->
+  <div class="modal-overlay" id="timeModal">
+    <div class="modal-card">
+      <div class="modal-title" id="modalTitle">Zadat čas</div>
+      
+      <div class="modal-input-group" id="honzaGroup" style="display: none;">
+        <label>Čas Honza (MM:SS)</label>
+        <input type="text" id="honzaInput" class="modal-input" inputmode="numeric" pattern="[0-9:]*" placeholder="42:15">
+      </div>
+
+      <div class="modal-input-group" id="milaGroup">
+        <label>Čas Míla (MM:SS)</label>
+        <input type="text" id="milaInput" class="modal-input" inputmode="numeric" pattern="[0-9:]*" placeholder="45:30">
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn-secondary" onclick="closeModal()">Zrušit</button>
+        <button class="btn-primary" onclick="saveModalData()">Uložit</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -241,6 +361,8 @@
     let startTime = 0;
     let elapsedTime = 0;
     let isRunning = false;
+    let activeTripId = null;
+    let modalMode = 'milaOnly';
 
     document.addEventListener('DOMContentLoaded', loadHistory);
 
@@ -299,17 +421,70 @@
       loadHistory();
     }
 
-    function addMilaTime(id) {
-      const milaTime = prompt('Zadejte čas Míly (např. 45:30):');
-      if (milaTime) {
-        const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
-        const trip = history.find(item => item.id === id);
-        if (trip) {
-          trip.milaTime = milaTime;
+    /* Modal s Číselnou Klávesnicí */
+    function openMilaModal(id) {
+      activeTripId = id;
+      modalMode = 'milaOnly';
+      document.getElementById('modalTitle').textContent = 'Přidat čas pro Mílu';
+      document.getElementById('honzaGroup').style.display = 'none';
+      document.getElementById('milaGroup').style.display = 'block';
+      document.getElementById('milaInput').value = '';
+      
+      const modal = document.getElementById('timeModal');
+      modal.classList.add('active');
+      
+      // Automatické zaostření vyvolá číselnou klávesnici
+      setTimeout(() => document.getElementById('milaInput').focus(), 100);
+    }
+
+    function openManualAddModal() {
+      modalMode = 'manualAdd';
+      document.getElementById('modalTitle').textContent = 'Ruční zápis výstupu';
+      document.getElementById('honzaGroup').style.display = 'block';
+      document.getElementById('milaGroup').style.display = 'block';
+      document.getElementById('honzaInput').value = '';
+      document.getElementById('milaInput').value = '';
+      
+      const modal = document.getElementById('timeModal');
+      modal.classList.add('active');
+      
+      setTimeout(() => document.getElementById('honzaInput').focus(), 100);
+    }
+
+    function closeModal() {
+      document.getElementById('timeModal').classList.remove('active');
+    }
+
+    function saveModalData() {
+      const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
+
+      if (modalMode === 'milaOnly') {
+        const milaTime = document.getElementById('milaInput').value.trim();
+        if (milaTime) {
+          const trip = history.find(item => item.id === activeTripId);
+          if (trip) {
+            trip.milaTime = milaTime;
+            localStorage.setItem('milesovka_history', JSON.stringify(history));
+          }
+        }
+      } else if (modalMode === 'manualAdd') {
+        const honzaTime = document.getElementById('honzaInput').value.trim();
+        const milaTime = document.getElementById('milaInput').value.trim();
+
+        if (honzaTime || milaTime) {
+          const newTrip = {
+            id: Date.now(),
+            date: new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' }),
+            honzaTime: honzaTime || '--:--',
+            milaTime: milaTime || null
+          };
+          history.unshift(newTrip);
           localStorage.setItem('milesovka_history', JSON.stringify(history));
-          loadHistory();
         }
       }
+
+      closeModal();
+      loadHistory();
     }
 
     function deleteTrip(id) {
@@ -321,6 +496,15 @@
       }
     }
 
+    function timeToSeconds(timeStr) {
+      if (!timeStr || timeStr === '--:--') return Infinity;
+      const parts = timeStr.split(':');
+      if (parts.length === 2) {
+        return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      }
+      return parseInt(timeStr, 10) * 60 || Infinity;
+    }
+
     function loadHistory() {
       const historyList = document.getElementById('historyList');
       const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
@@ -330,25 +514,40 @@
         return;
       }
 
-      historyList.innerHTML = history.map(item => `
-        <div class="history-item">
-          <div class="history-header">
-            <span>📅 ${item.date}</span>
-            <button class="delete-btn" onclick="deleteTrip(${item.id})">Smazat</button>
-          </div>
-          <div class="times-grid">
-            <div class="time-box">
-              <div class="label">Honza</div>
-              <div class="value">${item.honzaTime}</div>
+      historyList.innerHTML = history.map(item => {
+        const hSec = timeToSeconds(item.honzaTime);
+        const mSec = timeToSeconds(item.milaTime);
+        
+        let honzaWinner = false;
+        let milaWinner = false;
+
+        if (hSec !== Infinity && mSec !== Infinity) {
+          if (hSec < mSec) honzaWinner = true;
+          else if (mSec < hSec) milaWinner = true;
+        }
+
+        return `
+          <div class="history-item">
+            <div class="item-top-row">
+              <span class="item-date">📅 ${item.date}</span>
+              <button class="delete-btn" onclick="deleteTrip(${item.id})">Smazat</button>
             </div>
-            <div class="time-box">
-              <div class="label">Míla</div>
-              <div class="value">${item.milaTime || '--:--'}</div>
+            <div class="times-grid">
+              <div class="time-box">
+                <div class="label">Honza</div>
+                <div class="value">${item.honzaTime}</div>
+                ${honzaWinner ? '<div class="winner-badge">🏆 Rychlejší</div>' : ''}
+              </div>
+              <div class="time-box">
+                <div class="label">Míla</div>
+                <div class="value">${item.milaTime || '--:--'}</div>
+                ${milaWinner ? '<div class="winner-badge">🏆 Rychlejší</div>' : ''}
+              </div>
             </div>
+            ${!item.milaTime ? `<button class="btn-add-mila" onclick="openMilaModal(${item.id})">+ Přidat čas pro Mílu</button>` : ''}
           </div>
-          ${!item.milaTime ? `<button class="btn-add-mila" onclick="addMilaTime(${item.id})">+ Přidat čas pro Mílu</button>` : ''}
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
   </script>
 </body>
