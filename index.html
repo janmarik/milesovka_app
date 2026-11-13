@@ -43,7 +43,7 @@
 
     header {
       text-align: center;
-      padding: 24px 0 20px 0;
+      padding: 20px 0 16px 0;
     }
 
     header h1 {
@@ -55,65 +55,103 @@
       -webkit-text-fill-color: transparent;
     }
 
+    .offline-badge {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      font-weight: 600;
+    }
+
     .card {
       background: var(--card-bg);
       border-radius: 20px;
-      padding: 24px;
+      padding: 20px;
       margin-bottom: 20px;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
       border: 1px solid var(--border);
     }
 
-    /* Stopky */
-    .timer-label {
+    /* Duální stopky */
+    .timers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .timer-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 10px;
       text-align: center;
+    }
+
+    .timer-box.running {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+    }
+
+    .timer-name {
       font-size: 0.85rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
+      letter-spacing: 1px;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .timer-display {
-      font-size: 4rem;
+      font-size: 2.3rem;
       font-weight: 900;
-      text-align: center;
       font-variant-numeric: tabular-nums;
-      margin: 0 0 24px 0;
-      letter-spacing: 2px;
+      margin-bottom: 14px;
       color: var(--text);
     }
 
-    .btn-group {
+    .timer-controls {
       display: flex;
-      gap: 12px;
+      gap: 6px;
     }
 
     button {
-      flex: 1;
-      padding: 16px;
       border: none;
-      border-radius: 14px;
-      font-size: 1rem;
+      border-radius: 12px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
 
     button:active {
-      transform: scale(0.97);
+      transform: scale(0.96);
+    }
+
+    .btn-sm {
+      flex: 2;
+      padding: 12px 6px;
+      font-size: 0.9rem;
+    }
+
+    .btn-reset-sm {
+      flex: 1;
+      padding: 12px 4px;
+      font-size: 0.85rem;
+      background: #334155;
+      color: var(--text-muted);
     }
 
     .btn-primary { 
       background: var(--primary); 
       color: #064e3b; 
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
     }
     
     .btn-danger { 
       background: var(--danger); 
       color: white; 
-      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
     }
     
     .btn-secondary { 
@@ -121,8 +159,24 @@
       color: var(--text); 
     }
 
+    .btn-save-trip {
+      width: 100%;
+      padding: 16px;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+      margin-bottom: 10px;
+    }
+
+    .btn-save-trip:disabled {
+      background: #334155;
+      color: #64748b;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
     .btn-manual-add {
-      margin-top: 14px;
       width: 100%;
       padding: 10px;
       background: transparent;
@@ -160,7 +214,6 @@
       padding: 18px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       border: 1px solid var(--border);
-      position: relative;
     }
 
     .item-top-row {
@@ -175,7 +228,8 @@
     .item-date-weather {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
       font-weight: 600;
       color: var(--text-muted);
       font-size: 0.85rem;
@@ -202,7 +256,6 @@
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.05);
       cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
     }
 
     .time-box:active {
@@ -216,14 +269,10 @@
       margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
     }
 
     .time-box .label::after {
-      content: "✏️";
+      content: " ✏️";
       font-size: 0.65rem;
       opacity: 0.6;
     }
@@ -239,9 +288,6 @@
       color: var(--danger);
       font-size: 0.8rem;
       padding: 4px 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
     }
 
     .winner-badge {
@@ -282,7 +328,6 @@
       width: 100%;
       max-width: 360px;
       border: 1px solid var(--border);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     }
 
     .modal-title {
@@ -317,13 +362,15 @@
       outline: none;
     }
 
-    .modal-input:focus {
-      border-color: var(--accent);
-    }
-
     .modal-buttons {
       display: flex;
       gap: 10px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 14px;
+      font-size: 1rem;
     }
   </style>
 </head>
@@ -331,16 +378,34 @@
 
   <header>
     <h1>⛰️ Výstupy na Milešovku</h1>
+    <div class="offline-badge" id="statusBadge">Offline režim připraven</div>
   </header>
 
-  <!-- Stopky -->
+  <!-- Duální stopky -->
   <div class="card">
-    <div class="timer-label">Měření výstupu (Honza)</div>
-    <div class="timer-display" id="display">00:00</div>
-    <div class="btn-group">
-      <button id="startStopBtn" class="btn-primary" onclick="toggleTimer()">Start</button>
-      <button class="btn-secondary" onclick="resetTimer()">Reset</button>
+    <div class="timers-grid">
+      <!-- Stopky Honza -->
+      <div class="timer-box" id="box-honza">
+        <div class="timer-name">Honza</div>
+        <div class="timer-display" id="display-honza">00:00</div>
+        <div class="timer-controls">
+          <button id="btn-honza" class="btn-sm btn-primary" onclick="toggleTimer('honza')">Start</button>
+          <button class="btn-reset-sm" onclick="resetTimer('honza')">↺</button>
+        </div>
+      </div>
+
+      <!-- Stopky Míla -->
+      <div class="timer-box" id="box-mila">
+        <div class="timer-name">Míla</div>
+        <div class="timer-display" id="display-mila">00:00</div>
+        <div class="timer-controls">
+          <button id="btn-mila" class="btn-sm btn-primary" onclick="toggleTimer('mila')">Start</button>
+          <button class="btn-reset-sm" onclick="resetTimer('mila')">↺</button>
+        </div>
+      </div>
     </div>
+
+    <button id="saveTripBtn" class="btn-save-trip" onclick="saveCurrentTimers()" disabled>💾 Uložit výstup na vrcholu</button>
     <button class="btn-manual-add" onclick="openManualAddModal()">+ Ručně vložit výstup</button>
   </div>
 
@@ -355,12 +420,12 @@
     <div class="modal-card">
       <div class="modal-title" id="modalTitle">Zadat čas</div>
       
-      <div class="modal-input-group" id="honzaGroup">
+      <div class="modal-input-group">
         <label>Čas Honza (MM:SS)</label>
         <input type="text" id="honzaInput" class="modal-input" inputmode="numeric" placeholder="42:15" oninput="autoFormatTime(this)">
       </div>
 
-      <div class="modal-input-group" id="milaGroup">
+      <div class="modal-input-group">
         <label>Čas Míla (MM:SS)</label>
         <input type="text" id="milaInput" class="modal-input" inputmode="numeric" placeholder="45:30" oninput="autoFormatTime(this)">
       </div>
@@ -373,20 +438,115 @@
   </div>
 
   <script>
-    let timerInterval = null;
-    let startTime = 0;
-    let elapsedTime = 0;
-    let isRunning = false;
+    // Registrace Service Workeru pro 100% offline fungování pod kopcem
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW chyba:', err));
+    }
+
+    // Stav stopek uložený v paměti (přežije i zamčení/zavření mobilu)
+    let timers = JSON.parse(localStorage.getItem('milesovka_active_timers')) || {
+      honza: { isRunning: false, startTime: 0, elapsed: 0 },
+      mila: { isRunning: false, startTime: 0, elapsed: 0 }
+    };
+
     let activeTripId = null;
     let modalMode = 'editTrip';
 
-    // GPS Souřadnice Milešovky pro stahování počasí
     const MILESOVKA_LAT = 50.5558;
     const MILESOVKA_LON = 13.9314;
 
-    document.addEventListener('DOMContentLoaded', loadHistory);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadHistory();
+      updateAllTimersUI();
+      setInterval(updateAllTimersUI, 500);
+      updateConnectionStatus();
+    });
+
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+
+    function updateConnectionStatus() {
+      const badge = document.getElementById('statusBadge');
+      if (navigator.onLine) {
+        badge.textContent = '🟢 Online (počasí dostupné)';
+        badge.style.color = '#34d399';
+      } else {
+        badge.textContent = '🟠 Offline režim (stopky fungují)';
+        badge.style.color = '#fbbf24';
+      }
+    }
+
+    function saveTimersState() {
+      localStorage.setItem('milesovka_active_timers', JSON.stringify(timers));
+    }
+
+    function toggleTimer(person) {
+      const t = timers[person];
+      if (!t.isRunning) {
+        t.startTime = Date.now() - t.elapsed;
+        t.isRunning = true;
+      } else {
+        t.elapsed = Date.now() - t.startTime;
+        t.isRunning = false;
+      }
+      saveTimersState();
+      updateAllTimersUI();
+    }
+
+    function resetTimer(person) {
+      timers[person] = { isRunning: false, startTime: 0, elapsed: 0 };
+      saveTimersState();
+      updateAllTimersUI();
+    }
+
+    function getElapsed(person) {
+      const t = timers[person];
+      return t.isRunning ? (Date.now() - t.startTime) : t.elapsed;
+    }
+
+    function updateAllTimersUI() {
+      ['honza', 'mila'].forEach(person => {
+        const t = timers[person];
+        const currentMs = getElapsed(person);
+        
+        document.getElementById(`display-${person}`).textContent = formatTime(currentMs);
+        
+        const btn = document.getElementById(`btn-${person}`);
+        const box = document.getElementById(`box-${person}`);
+        
+        if (t.isRunning) {
+          btn.textContent = 'Stop';
+          btn.className = 'btn-sm btn-danger';
+          box.classList.add('running');
+        } else {
+          btn.textContent = currentMs > 0 ? 'Pokračovat' : 'Start';
+          btn.className = 'btn-sm btn-primary';
+          box.classList.remove('running');
+        }
+      });
+
+      // Tlačítko uložit je aktivní, pokud má aspoň jeden naměřený čas a stopky neběží
+      const hMs = getElapsed('honza');
+      const mMs = getElapsed('mila');
+      const anyRunning = timers.honza.isRunning || timers.mila.isRunning;
+      const saveBtn = document.getElementById('saveTripBtn');
+
+      if (!anyRunning && (hMs > 0 || mMs > 0)) {
+        saveBtn.disabled = false;
+      } else {
+        saveBtn.disabled = true;
+      }
+    }
+
+    function formatTime(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
 
     async function fetchWeather() {
+      if (!navigator.onLine) return null;
       try {
         const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${MILESOVKA_LAT}&longitude=${MILESOVKA_LON}&current_weather=true`);
         const data = await response.json();
@@ -396,58 +556,49 @@
           const code = data.current_weather.weathercode;
           
           let condition = '☀️ Slunečno';
-          if (code >= 1 && code <= 3) condition = '⛅ Polojasno / Mrak';
+          if (code >= 1 && code <= 3) condition = '⛅ Polojasno';
           else if (code >= 45 && code <= 48) condition = '🌫️ Mlha';
-          else if (code >= 51 && code <= 67) condition = '🌧️ Pršelo';
-          else if (code >= 71 && code <= 86) condition = '❄️ Sněžilo';
+          else if (code >= 51 && code <= 67) condition = '🌧️ Déšť';
+          else if (code >= 71 && code <= 86) condition = '❄️ Sníh';
 
           return `${condition}, ${temp} °C`;
         }
       } catch (e) {
         console.log('Chyba načítání počasí:', e);
       }
-      return '☀️ 15 °C'; // Záložní teplota v případě výpadku
+      return null;
     }
 
-    async function toggleTimer() {
-      if (!isRunning) {
-        startTime = Date.now() - elapsedTime;
-        timerInterval = setInterval(updateDisplay, 1000);
-        document.getElementById('startStopBtn').textContent = 'Stop (Vrchol)';
-        document.getElementById('startStopBtn').className = 'btn-danger';
-        isRunning = true;
-      } else {
-        clearInterval(timerInterval);
-        document.getElementById('startStopBtn').textContent = 'Načítám počasí...';
-        isRunning = false;
+    async function saveCurrentTimers() {
+      const saveBtn = document.getElementById('saveTripBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Načítám počasí na vrcholu...';
 
-        if (elapsedTime > 0) {
-          const weather = await fetchWeather();
-          saveTrip(formatTime(elapsedTime), weather);
-          resetTimer();
-        }
-      }
-    }
+      const hMs = getElapsed('honza');
+      const mMs = getElapsed('mila');
 
-    function resetTimer() {
-      clearInterval(timerInterval);
-      isRunning = false;
-      elapsedTime = 0;
-      document.getElementById('display').textContent = '00:00';
-      document.getElementById('startStopBtn').textContent = 'Start';
-      document.getElementById('startStopBtn').className = 'btn-primary';
-    }
+      const honzaTime = hMs > 0 ? formatTime(hMs) : '--:--';
+      const milaTime = mMs > 0 ? formatTime(mMs) : null;
 
-    function updateDisplay() {
-      elapsedTime = Date.now() - startTime;
-      document.getElementById('display').textContent = formatTime(elapsedTime);
-    }
+      const weather = await fetchWeather();
 
-    function formatTime(ms) {
-      const totalSeconds = Math.floor(ms / 1000);
-      const minutes = Math.floor(totalSeconds / 60);
-      const seconds = totalSeconds % 60;
-      return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
+      const newTrip = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' }),
+        weather: weather,
+        honzaTime: honzaTime,
+        milaTime: milaTime
+      };
+      
+      history.unshift(newTrip);
+      localStorage.setItem('milesovka_history', JSON.stringify(history));
+
+      // Vynulování obou stopek
+      resetTimer('honza');
+      resetTimer('mila');
+      saveBtn.textContent = '💾 Uložit výstup na vrcholu';
+      loadHistory();
     }
 
     function autoFormatTime(input) {
@@ -461,60 +612,32 @@
       }
     }
 
-    function saveTrip(honzaTime, weather) {
-      const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
-      const newTrip = {
-        id: Date.now(),
-        date: new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' }),
-        weather: weather,
-        honzaTime: honzaTime,
-        milaTime: null
-      };
-      
-      history.unshift(newTrip);
-      localStorage.setItem('milesovka_history', JSON.stringify(history));
-      loadHistory();
-    }
-
     function editTripTime(id, focusPerson = 'honza') {
       activeTripId = id;
       modalMode = 'editTrip';
       
       const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
       const trip = history.find(item => item.id === id);
-
       if (!trip) return;
 
       document.getElementById('modalTitle').textContent = `Upravit čas (${trip.date})`;
-      document.getElementById('honzaGroup').style.display = 'block';
-      document.getElementById('milaGroup').style.display = 'block';
-
       document.getElementById('honzaInput').value = (trip.honzaTime && trip.honzaTime !== '--:--') ? trip.honzaTime : '';
       document.getElementById('milaInput').value = (trip.milaTime && trip.milaTime !== '--:--') ? trip.milaTime : '';
 
-      const modal = document.getElementById('timeModal');
-      modal.classList.add('active');
+      document.getElementById('timeModal').classList.add('active');
 
       setTimeout(() => {
-        if (focusPerson === 'mila') {
-          document.getElementById('milaInput').focus();
-        } else {
-          document.getElementById('honzaInput').focus();
-        }
+        document.getElementById(focusPerson === 'mila' ? 'milaInput' : 'honzaInput').focus();
       }, 100);
     }
 
     function openManualAddModal() {
       modalMode = 'manualAdd';
       document.getElementById('modalTitle').textContent = 'Ruční zápis výstupu';
-      document.getElementById('honzaGroup').style.display = 'block';
-      document.getElementById('milaGroup').style.display = 'block';
       document.getElementById('honzaInput').value = '';
       document.getElementById('milaInput').value = '';
       
-      const modal = document.getElementById('timeModal');
-      modal.classList.add('active');
-      
+      document.getElementById('timeModal').classList.add('active');
       setTimeout(() => document.getElementById('honzaInput').focus(), 100);
     }
 
@@ -524,7 +647,6 @@
 
     async function saveModalData() {
       const history = JSON.parse(localStorage.getItem('milesovka_history') || '[]');
-
       let honzaVal = document.getElementById('honzaInput').value.trim();
       let milaVal = document.getElementById('milaInput').value.trim();
 
